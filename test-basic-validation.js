@@ -19,7 +19,7 @@ async function runWso2Test() {
     }
 
     if (!fs.existsSync(mainSchemaPath)) {
-        console.error(`❌ Cannot find schema at: ${mainSchemaPath}`);
+        console.error(` Cannot find schema at: ${mainSchemaPath}`);
         return;
     }
 
