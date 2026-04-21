@@ -11,7 +11,7 @@ async function runWso2Test() {
 
     // Point exactly to your local WSO2 schemas
     const mainSchemaPath = path.resolve('./schemas/440/synapse_config.xsd');
-    const xmlPath = path.resolve('./test-payload.xml');
+    const xmlPath = path.resolve('./test.xml');
     
     // Create a dummy payload if it doesn't exist
     if (!fs.existsSync(xmlPath)) {
