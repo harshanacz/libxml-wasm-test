@@ -4,7 +4,7 @@ A proof-of-concept demonstrating that `libxml2-wasm` can successfully power the 
 |-----------|----------------|
 | **test-basic-validation.js** | Proves that the massive WSO2 schema tree compiles successfully in WASM and catches standard schema violations. |
 | **test-column-demo.js** | Proves exactly how VS Code diagnostics are drawn (Line + Column for syntax errors, Line-level for schema errors). Clearly demonstrates how to map libxml2 output to VS Code's Diagnostic interface. |
-| **test-incomplete-xml.js** | Proves engine resilience. This is critical because users type character-by-character. Unclosed tags, missing quotes, and half-typed elements do not crash the Language Server. Parse errors are handled gracefully until the next keystroke. |
+| **test-incomplete-xml.js** | Proves engine resilience. Incomplete/malformed XML does NOT produce an AST tree (parsing fails), BUT the engine does NOT crash. This is critical because users type character-by-character. Unclosed tags, missing quotes, and half-typed elements throw catchable errors with accurate line/column positions, allowing the Language Server to show diagnostics without crashing. |
 | **test-dynamic-schema-generation.js** | Proves that Connectors (e.g., Salesforce) can be injected dynamically without restarting the language server, matching the behavior of @wso2/mi-language-server. |
 | **test-concurrent-schemas.js** | Proves support for multi-root workspaces in VS Code. Multiple projects (e.g., WSO2 MI 4.3.0 and 4.4.0) can run side-by-side with independent validators in memory without conflicts. |
 
