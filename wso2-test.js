@@ -35,9 +35,9 @@ async function runWso2Test() {
         console.log(`2. Compiling XSD Validator...`);
         try {
             validator = XsdValidator.fromDoc(schemaDoc);
-            console.log(`✅ Validator compiled successfully!\n`);
+            console.log(` Validator compiled successfully!\n`);
         } catch (schemaErr) {
-            console.error(`\n❌ SCHEMA COMPILATION FAILED!`);
+            console.error(`\n SCHEMA COMPILATION FAILED!`);
             console.error(`The official WSO2 .xsd files have a syntax error.`);
             
             if (schemaErr instanceof XmlValidateError && schemaErr.details) {
@@ -49,7 +49,6 @@ async function runWso2Test() {
             } else {
                 console.error(schemaErr.message);
             }
-            console.error(`\nPlease go into that file, delete the duplicate attribute at Line 77, and run this script again.`);
             return; // Stop here until the XSD is patched
         }
 
@@ -59,9 +58,9 @@ async function runWso2Test() {
 
         try {
             validator.validate(xmlDoc);
-            console.log(`✅ SUCCESS: XML is valid.`);
+            console.log(` SUCCESS: XML is valid.`);
         } catch (xmlErr) {
-            console.error(`\n❌ XML VALIDATION FAILED (This is expected for our test!):`);
+            console.error(`\n XML VALIDATION FAILED (This is expected for our test!):`);
             if (xmlErr instanceof XmlValidateError && xmlErr.details) {
                 xmlErr.details.forEach((detail) => {
                     // This proves we get Line and Column numbers for VS Code!
