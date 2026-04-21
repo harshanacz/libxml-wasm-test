@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://ws.apache.org/ns/synapse">
+    
+    <!-- BUG 1: We provided all required fields (name, transports, target). -->
+    <!-- The ONLY error here is the 'badName' attribute! -->
+    <proxy name="StockQuoteProxy" transports="https" badName="Oops">
+        <target>
+            <inSequence>
+                <log level="full"/>
+            </inSequence>
+        </target>
+    </proxy>
+    
+    <!-- BUG 2 (Temporary): The connector is unknown -->
+    <sequence name="MySalesforceSequence">
+        <salesforce.getContact configKey="MySFConfig" contactId="12345" />
+    </sequence>
+    
+</definitions>
