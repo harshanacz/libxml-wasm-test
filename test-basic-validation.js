@@ -30,7 +30,10 @@ async function runWso2Test() {
     try {
         console.log(`1. Parsing Root Schema: ${mainSchemaPath}`);
         const schemaText = fs.readFileSync(mainSchemaPath, 'utf8');
-        schemaDoc = XmlDocument.fromString(schemaText, { url: `file://${mainSchemaPath}` });
+        schemaDoc = XmlDocument.fromString(schemaText, { 
+            url: `file://${mainSchemaPath}`,
+            lineNumbers: true  // Enable line number tracking
+        });
         
         console.log(`2. Compiling XSD Validator...`);
         try {
@@ -54,7 +57,10 @@ async function runWso2Test() {
 
         console.log(`3. Validating WSO2 XML Payload...`);
         const xmlText = fs.readFileSync(xmlPath, 'utf8');
-        xmlDoc = XmlDocument.fromString(xmlText);
+        xmlDoc = XmlDocument.fromString(xmlText, {
+            url: `file://${xmlPath}`,
+            lineNumbers: true  // Enable line number tracking
+        });
 
         try {
             validator.validate(xmlDoc);
