@@ -34,7 +34,7 @@
                         <xs:attribute name="key"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:any namespace="##other" processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute name="language" use="required">
                 <xs:simpleType>

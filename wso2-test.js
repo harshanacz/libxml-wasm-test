@@ -4,33 +4,24 @@ import { XmlDocument, XsdValidator, XmlValidateError } from 'libxml2-wasm';
 import { xmlRegisterFsInputProviders } from 'libxml2-wasm/lib/nodejs.mjs';
 
 async function runWso2Test() {
-    console.log("--- Starting WSO2 WASM Validation Test (Local Schemas) ---");
+    console.log("--- Starting WSO2 WASM Validation Test ---");
     
-    // 1. Enable Node.js File System access for libxml2-wasm so it can follow <xs:include>
+    // Enable file system access for <xs:include>
     xmlRegisterFsInputProviders();
 
-    // 2. Point to your local downloaded schema
+    // Point exactly to your local WSO2 schemas
     const mainSchemaPath = path.resolve('./schemas/440/synapse_config.xsd');
+    const xmlPath = path.resolve('./test-payload.xml');
     
-    if (!fs.existsSync(mainSchemaPath)) {
-        console.error(`❌ Cannot find main schema at: ${mainSchemaPath}`);
-        return;
+    // Create a dummy payload if it doesn't exist
+    if (!fs.existsSync(xmlPath)) {
+        fs.writeFileSync(xmlPath, `<?xml version="1.0" encoding="UTF-8"?>\n<definitions xmlns="http://ws.apache.org/ns/synapse">\n    <proxy badName="StockQuoteProxy"/>\n</definitions>`);
     }
 
-    // 3. Create a sample XML with an intentional error to check line/col numbers
-    const xmlPath = path.resolve('./test-payload.xml');
-    const sampleXml = `<?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://ws.apache.org/ns/synapse">
-    <!-- This proxy has a deliberate error: 'name' is required but we called it 'badName' -->
-    <proxy badName="StockQuoteProxy" transports="https">
-        <target>
-            <inSequence>
-                <log level="full"/>
-            </inSequence>
-        </target>
-    </proxy>
-</definitions>`;
-    fs.writeFileSync(xmlPath, sampleXml);
+    if (!fs.existsSync(mainSchemaPath)) {
+        console.error(`❌ Cannot find schema at: ${mainSchemaPath}`);
+        return;
+    }
 
     let schemaDoc = null;
     let validator = null;
@@ -39,34 +30,46 @@ async function runWso2Test() {
     try {
         console.log(`1. Parsing Root Schema: ${mainSchemaPath}`);
         const schemaText = fs.readFileSync(mainSchemaPath, 'utf8');
-        
-        // CRITICAL: Must provide the file URL so the C-library knows where to find the included files!
-        // This tells libxml2 that the base folder is 'schemas/440/'
         schemaDoc = XmlDocument.fromString(schemaText, { url: `file://${mainSchemaPath}` });
         
-        console.log(`2. Compiling XSD Validator (Testing <xs:include> support)...`);
-        // This is where it automatically reads api.xsd, proxy.xsd, mediators/..., etc. from your disk
-        validator = XsdValidator.fromDoc(schemaDoc);
-        console.log(`✅ Validator compiled successfully! It successfully read all included WSO2 schemas.\n`);
+        console.log(`2. Compiling XSD Validator...`);
+        try {
+            validator = XsdValidator.fromDoc(schemaDoc);
+            console.log(`✅ Validator compiled successfully!\n`);
+        } catch (schemaErr) {
+            console.error(`\n❌ SCHEMA COMPILATION FAILED!`);
+            console.error(`The official WSO2 .xsd files have a syntax error.`);
+            
+            if (schemaErr instanceof XmlValidateError && schemaErr.details) {
+                schemaErr.details.forEach((detail) => {
+                    // THIS IS THE FIX: Print the exact file name causing the crash!
+                    const fileName = detail.file ? path.basename(detail.file) : 'Unknown File';
+                    console.error(`  --> File: ${fileName} | Line: ${detail.line} | ${detail.message.trim()}`);
+                });
+            } else {
+                console.error(schemaErr.message);
+            }
+            console.error(`\nPlease go into that file, delete the duplicate attribute at Line 77, and run this script again.`);
+            return; // Stop here until the XSD is patched
+        }
 
         console.log(`3. Validating WSO2 XML Payload...`);
         const xmlText = fs.readFileSync(xmlPath, 'utf8');
         xmlDoc = XmlDocument.fromString(xmlText);
 
-        validator.validate(xmlDoc);
-        console.log(`✅ SUCCESS: XML is valid.`);
-
-    } catch (err) {
-        if (err instanceof XmlValidateError) {
-            console.error(`❌ VALIDATION FAILED (This is expected because we injected a deliberate error!):`);
-            // Exactly what you need for VS Code Diagnostics:
-            err.details.forEach((detail, index) => {
-                console.error(`  --> Line: ${detail.line}, Column: ${detail.col} | Error: ${detail.message.trim()}`);
-            });
-        } else {
-            console.error(`�� FATAL CRASH: The experimental XSD resolver failed to process WSO2 schemas.`);
-            console.error(err);
+        try {
+            validator.validate(xmlDoc);
+            console.log(`✅ SUCCESS: XML is valid.`);
+        } catch (xmlErr) {
+            console.error(`\n❌ XML VALIDATION FAILED (This is expected for our test!):`);
+            if (xmlErr instanceof XmlValidateError && xmlErr.details) {
+                xmlErr.details.forEach((detail) => {
+                    // This proves we get Line and Column numbers for VS Code!
+                    console.error(`  --> Line: ${detail.line}, Column: ${detail.col} | Error: ${detail.message.trim()}`);
+                });
+            }
         }
+
     } finally {
         if (xmlDoc) xmlDoc.dispose();
         if (validator) validator.dispose();
