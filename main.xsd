@@ -1,8 +1,0 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:include schemaLocation="base.xsd"/>
-    <xs:element name="proxy">
-        <xs:complexType>
-            <xs:attribute ref="name" use="required"/>
-        </xs:complexType>
-    </xs:element>
-</xs:schema>
