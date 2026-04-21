@@ -41,7 +41,7 @@ async function runConnectorTest() {
         const schemaText = fs.readFileSync(mainSchemaPath, 'utf8');
         schemaDoc = XmlDocument.fromString(schemaText, { url: `file://${mainSchemaPath}` });
         validator = XsdValidator.fromDoc(schemaDoc);
-        console.log(`✅ Validator compiled successfully with new connector!`);
+        console.log(` Validator compiled successfully with new connector!`);
 
         console.log(`3. Validating test.xml again...`);
         const xmlText = fs.readFileSync(xmlPath, 'utf8');
@@ -49,7 +49,7 @@ async function runConnectorTest() {
 
         try {
             validator.validate(xmlDoc);
-            console.log(`✅ SUCCESS: XML is valid!`);
+            console.log(` SUCCESS: XML is valid!`);
         } catch (xmlErr) {
             console.error(`\n❌ XML VALIDATION FAILED:`);
             if (xmlErr instanceof XmlValidateError && xmlErr.details) {
