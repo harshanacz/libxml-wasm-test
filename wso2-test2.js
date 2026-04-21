@@ -30,7 +30,7 @@ async function runConnectorTest() {
 </xs:schema>`;
     
     fs.writeFileSync(connectorsSchemaPath, generatedConnectorsXsd);
-    console.log(`✅ Successfully wrote to mediators/connectors.xsd`);
+    console.log(` Successfully wrote to mediators/connectors.xsd`);
 
     let schemaDoc = null;
     let validator = null;
@@ -51,7 +51,7 @@ async function runConnectorTest() {
             validator.validate(xmlDoc);
             console.log(` SUCCESS: XML is valid!`);
         } catch (xmlErr) {
-            console.error(`\n❌ XML VALIDATION FAILED:`);
+            console.error(`\n XML VALIDATION FAILED:`);
             if (xmlErr instanceof XmlValidateError && xmlErr.details) {
                 xmlErr.details.forEach((detail) => {
                     console.error(`  --> Line: ${detail.line}, Column: ${detail.col} | Error: ${detail.message.trim()}`);
