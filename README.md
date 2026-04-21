@@ -6,13 +6,22 @@ A proof-of-concept demonstrating that `libxml2-wasm` can successfully power the 
 node test-basic-validation.js
 ```
 
-2. **Precise Diagnostics:** Extracts exact `Line` number from XML errors to power VS Code red squiggly lines bt hv to do put a red squiggly line under the entire line bc 'Column' number is always 0. - 
+2. **Error Position Tracking:**
+   - **Parsing errors** (syntax): Line + Column ✓
+   - **Validation errors** (schema): Line only, Column = 0 ✗
+   - Engine doesn't crash on incomplete XML (safe for real-time IDE validation)
 ```bash
-node test-column-demo.js
+node test-column-demo.js        # Shows column behavior
+node test-incomplete-xml.js     # Tests malformed XML handling
 ```
 3. **Dynamic Connectors:** Proves that dynamically writing to `connectors.xsd` and recompiling the validator on the fly instantly clears diagnostic errors for downloaded connectors (e.g., Salesforce).
 ```bash
 node test-dynamic-schema-generation.js
+```
+
+4. **Concurrent Schema Instances:** Multiple XSD validators loaded simultaneously in memory, each maintaining independent schema state. Router switches between validators instantly based on document URI.
+```bash
+node test-concurrent-schemas.js
 ```
 
 

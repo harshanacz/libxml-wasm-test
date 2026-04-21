@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://ws.apache.org/ns/synapse">
+    
+    <sequence name="TestVariableMediator">
+        <log level="custom">
+            <property name="message" value="Testing variable mediator"/>
+        </log>
+        
+        <!-- This mediator exists in 440 but NOT in 430 -->
+        <variable name="testVar" type="STRING" value="Hello World"/>
+        
+        <log level="custom">
+            <property name="varValue" expression="$ctx:testVar"/>
+        </log>
+    </sequence>
+    
+</definitions>
