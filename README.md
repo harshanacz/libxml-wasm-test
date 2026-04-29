@@ -1,14 +1,35 @@
-A proof-of-concept demonstrating that `libxml2-wasm` can successfully power the `@wso2/mi-language-server` for strict XML/XSD validation in web-based environments (like `vscode.dev`).
+# libxml2wasm Test Repository
+This repository is used to test WebAssembly integrations with `libxml2`.
 
-| Test File | What It Proves |
-|-----------|----------------|
-| **test-basic-validation.js** | Proves that the massive WSO2 schema tree compiles successfully in WASM and catches standard schema violations. |
-| **test-column-demo.js** | Proves exactly how VS Code diagnostics are drawn (Line + Column for syntax errors, Line-level for schema errors). Clearly demonstrates how to map libxml2 output to VS Code's Diagnostic interface. |
-| **test-incomplete-xml.js** | Proves engine resilience. Incomplete/malformed XML does NOT produce an AST tree (parsing fails), BUT the engine does NOT crash. This is critical because users type character-by-character. Unclosed tags, missing quotes, and half-typed elements throw catchable errors with accurate line/column positions, allowing the Language Server to show diagnostics without crashing. |
-| **test-dynamic-schema-generation.js** | Proves that Connectors (e.g., Salesforce) can be injected dynamically without restarting the language server, matching the behavior of @wso2/mi-language-server. |
-| **test-concurrent-schemas.js** | Proves support for multi-root workspaces in VS Code. Multiple projects (e.g., WSO2 MI 4.3.0 and 4.4.0) can run side-by-side with independent validators in memory without conflicts. |
+## 🔴 **Important Note About libxmlwasm**
 
-## What This Proves
+> This package (`libxmlwasm`) **cannot validate syntax and XSD together.**  
+> - If XML has **syntax errors**, it won't pass to `libxml2` WASM for XSD validation.  
+> - Only **well-formed XML** files work, so it’s not suitable for **language servers.**  
+
+---
+
+# **Solution** - Xerces-wasm NPM package
+
+[![npm version](https://img.shields.io/npm/v/xerces-wasm?style=flat-square&color=cb3837)](https://www.npmjs.com/package/xerces-wasm)
+
+You can resolve this limitation by using [`xerces-wasm`](https://www.npmjs.com/package/xerces-wasm).  
+This package leverages **Apache Xerces-C** compiled to WebAssembly with a JavaScript wrapper (published to NPM).
+
+**Xerces WASM Highlights:**  
+- Provides robust XML parsing and validation.  
+- Suitable for use in environments where both syntax and XSD validation are required.  
+
+## Links
+
+- **NPM Package (Xerces WASM):** [xerces-wasm](https://www.npmjs.com/package/xerces-wasm)
+- **Source Code (Xerces WASM):** [GitHub Repository](https://github.com/harshanacz/xerces-wasm)
+
+
+----
+Libxml2 WASM test report - 
+
+## But this properly supported 
 1. **Complex XSD Includes:** Successfully resolves deep `<xs:include>` trees across 12+ WSO2 schema files using custom File System providers.
 ```bash
 node test-basic-validation.js
